@@ -1,0 +1,16 @@
+services:
+  python3:
+    build:
+      context: ./python
+      dockerfile: Dockerfile-cuda12_6
+    tty: true
+    volumes:
+      - ./workspace:/workspace
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities:
+                - gpu

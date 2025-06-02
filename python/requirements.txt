@@ -1,0 +1,10 @@
+python-dotenv
+requests
+numpy
+pandas
+torch
+torchrl
+torchvision
+websocket-client
+rel
+scikit-learn

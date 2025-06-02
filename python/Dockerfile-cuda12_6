@@ -1,0 +1,9 @@
+FROM nvidia/cuda:12.6.2-cudnn-devel-ubuntu24.04
+ENV PATH="/myenv/bin:$PATH"
+COPY requirements.txt .
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip python3-venv
+RUN python3 -m venv myenv && \
+    pip install --upgrade pip && \
+    pip install -r requirements.txt
+WORKDIR /workspace

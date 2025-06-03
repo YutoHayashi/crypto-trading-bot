@@ -8,3 +8,4 @@ torchvision
 websocket-client
 rel
 scikit-learn
+boto3

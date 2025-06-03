@@ -34,7 +34,7 @@ class Application:
         )
         self.agent = Agent(
             qnet=QNet,
-            model_path='src/trained_model.pth',
+            model_key='trained_model.pth',
             observation_size=self.observation_size,
             action_size=self.action_size
         )

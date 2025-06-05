@@ -1,0 +1,102 @@
+from typing import Literal
+import datetime
+import json
+import requests
+import hashlib
+import hmac
+
+class BitflyerClientService:
+    def get_ticker(self, symbol: str) -> dict:
+        """
+        Fetches the ticker information for a given symbol.
+        :param symbol: The product code for which to fetch the ticker.
+        :return: A dictionary containing ticker information.
+        """
+        path = "/v1/getticker"
+        params = {"product_code": symbol}
+        response = requests.get(self.base_url + path, params=params)
+        return response.json()
+
+    def get_balance(self) -> dict:
+        """
+        Fetches the balance of the account.
+        :return: A dictionary containing the account balance.
+        """
+        path = "/v1/me/getbalance"
+        headers = self._get_auth_headers('get', path)
+        response = requests.get(self.base_url + path, headers=headers)
+        return response.json()
+
+    def get_collateral(self) -> dict:
+        """
+        Fetches the collateral information of the account.
+        :return: A dictionary containing the collateral information.
+        """
+        path = "/v1/me/getcollateral"
+        headers = self._get_auth_headers('get', path)
+        response = requests.get(self.base_url + path, headers=headers)
+        return response.json()
+
+    def create_order(self, symbol: str, side: Literal["buy", "sell"], size: float, price: float = None, order_type: str = Literal["limit", "market"]) -> dict:
+        """
+        Creates a new order.
+        :param symbol: The product code for the order.
+        :param side: The side of the order, either "buy" or "sell".
+        :param size: The size of the order.
+        :param price: The price for the order, required for limit orders.
+        :param order_type: The type of the order, either "limit" or "market".
+        :return: A dictionary containing the order response.
+        """
+        path = "/v1/me/sendchildorder"
+        data = json.dumps({
+            "product_code": symbol,
+            "child_order_type": order_type.upper(),
+            "side": side.upper(),
+            "price": price,
+            "size": size,
+        })
+        headers = self._get_auth_headers('post', path, data)
+        response = requests.post(self.base_url + path, data=data, headers=headers)
+        return response.json()
+
+    def cancel_order(self, order_id: str, symbol: str = None) -> dict:
+        """
+        Cancels an existing order.
+        :param order_id: The ID of the order to cancel.
+        :param symbol: The product code for the order, if applicable.
+        :return: A dictionary containing the cancellation response.
+        """
+        path = '/v1/me/cancelchildorder'
+        data = json.dumps({
+            "product_code": symbol,
+            "child_order_id": order_id,
+        })
+        headers = self._get_auth_headers('post', path, data)
+        response = requests.post(self.base_url + path, data=data, headers=headers)
+        return response.json()
+
+    def _get_auth_headers(self, method: Literal["post", "get"], path: str, data: str = '') -> dict:
+        """
+        Generates authentication headers for API requests.
+        :param method: The HTTP method (e.g., 'post', 'get').
+        :param path: The API endpoint path.
+        :param data: The request body data, if applicable.
+        :return: A dictionary containing the authentication headers.
+        """
+        timestamp = str(datetime.datetime.today())
+        mix = f"{timestamp}{method.upper()}{path}{data}"
+        signature = hmac.new(self.__api_secret.encode('utf-8'), mix.encode('utf-8'), hashlib.sha256).hexdigest()
+        return {
+            "ACCESS-KEY": self.__api_key,
+            "ACCESS-TIMESTAMP": timestamp,
+            "ACCESS-SIGN": signature,
+            "Content-Type": 'application/json',
+        }
+
+    def __init__(self, base_url: str, api_key: str, api_secret: str):
+        """
+        Initializes the BitflyerClient with API credentials and base URL.
+        """
+        self.base_url = base_url
+        self.__api_key = api_key
+        self.__api_secret = api_secret

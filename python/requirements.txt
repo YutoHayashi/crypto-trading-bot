@@ -9,3 +9,4 @@ websocket-client
 rel
 scikit-learn
 boto3
+dependency-injector

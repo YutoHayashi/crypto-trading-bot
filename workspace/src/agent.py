@@ -1,8 +1,8 @@
 from enum import Enum
-import os
 import io
+from dependency_injector.wiring import inject, Provide
 import torch
-from s3client import S3Client
+from services import s3client_service
 
 class Actions(Enum):
     """
@@ -17,7 +17,17 @@ class Actions(Enum):
     CANCEL_SELL_ORDER = 6
 
 class Agent:
-    def __init__(self, qnet, model_key: str, observation_size: int, action_size: int):
+    """
+    Agent class that uses a Q-network to determine actions based on the current state of the environment.
+    This agent loads a pre-trained model from an S3 bucket and uses it to predict actions.
+    """
+    @inject
+    def __init__(self,
+                 qnet,
+                 model_key: str,
+                 observation_size: int,
+                 action_size: int,
+                 s3client: s3client_service.S3ClientService = Provide['s3client']):
         """
         Initializes the Agent with a Q-network and loads a pre-trained model from S3.
         :param qnet: The Q-network class to be used.
@@ -27,7 +37,6 @@ class Agent:
         """
         self.q_model = qnet(input_size=observation_size, output_size=action_size)
 
-        s3client = S3Client(bucket=os.environ.get('S3_TRAINED_MODEL_BUCKET'))
         model_bytes = s3client.get_object(key=model_key)['Body'].read()
         buffer = io.BytesIO(model_bytes)
 

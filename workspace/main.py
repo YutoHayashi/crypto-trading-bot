@@ -1,23 +1,31 @@
 import sys
 import os
-from dotenv import load_dotenv
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
-load_dotenv()
 
-from dependency_injector.wiring import inject, Provide
+import asyncio
+from dotenv import load_dotenv
 from container import ApplicationContainer
-from services import wsclient_service
+import exceptions
+
+load_dotenv()
 
 legal_currency_code = 'JPY'
 crypto_currency_code = 'FX_BTC_JPY'
 
-@inject
-def main(wsclient: wsclient_service.WsClientService = Provide['wsclient']):
+def main(container: ApplicationContainer) -> None:
     """
-    Main function to start the WebSocket client service.
+    Main function to run the application.
+    This function initializes the portfolio and starts the WebSocket client.
+    :param container: The application container containing all services and configurations.
     """
-    wsclient.run()
+    try:
+        asyncio.run(container.portfolio().sync())
+        container.stream().run()
+    except exceptions.LogicException as e:
+        container.stream().stop()
+    except exceptions.RuntimeException as e:
+        container.stream().stop()
 
 if __name__ == '__main__':
     container = ApplicationContainer()
@@ -30,11 +38,12 @@ if __name__ == '__main__':
         'private_channels': ["child_order_events"],
     })
 
+    container.config.bitflyer_websocket_url.from_env('BITFLYER_WEBSOCKET_URL')
+    container.config.bitflyer_api_base_url.from_env('BITFLYER_API_BASE_URL')
     container.config.bitflyer_api_key.from_env('BITFLYER_API_KEY')
     container.config.bitflyer_api_secret.from_env('BITFLYER_API_SECRET')
-    container.config.bitflyer_api_base_url.from_env('BITFLYER_API_BASE_URL')
     container.config.s3_bucket.from_env('S3_BUCKET')
 
     container.wire()
 
-    main()
+    main(container)

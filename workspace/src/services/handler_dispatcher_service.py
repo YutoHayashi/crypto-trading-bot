@@ -1,18 +1,23 @@
 from typing import List
 import dataclasses
-from exceptions import runtime_exception
+import exceptions
 from message_handlers.message_handler import MessageHandler
 
 @dataclasses.dataclass
 class HandlerDispatcherService:
+    """
+    HandlerDispatcherService is responsible for dispatching messages to the appropriate handlers.
+    It checks the channel of the incoming message and calls the corresponding handler's method.
+    """
     handlers: List[MessageHandler]
 
-    def dispatch(self, data: list|dict, channel: str) -> None:
+    async def dispatch(self, data: list|dict, channel: str) -> None:
         """
         Dispatch the message to the appropriate handler based on the channel.
         """
         for handler in self.handlers:
-            if hasattr(handler, 'handle_message') and channel in handler.channel_names:
-                handler.handle_message(data, channel)
+            if hasattr(handler, 'handle_message'):
+                if channel in handler.channel_names:
+                    await handler.handle_message(data, channel)
             else:
-                raise runtime_exception.RuntimeException(f"Handler {handler.__class__.__name__} does not implement handle_message method.")
+                raise exceptions.LogicException(f"Handler {handler.__class__.__name__} does not implement handle_message method.")

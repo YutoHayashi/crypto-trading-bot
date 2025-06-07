@@ -19,7 +19,7 @@ class MessageHandler(ABC):
         pass
 
     @abstractmethod
-    def handle_message(self, data: list|dict, channel: str) -> None:
+    async def handle_message(self, data: list|dict, channel: str) -> None:
         """
         Handle incoming messages from the WebSocket.
 

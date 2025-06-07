@@ -4,8 +4,11 @@ import json
 import requests
 import hashlib
 import hmac
+from services.exchange_clients.exchange_client import ExchangeClient
 
-class BitflyerClientService:
+class BitflyerLightningClientService(ExchangeClient):
+    exchange_name = "bitflyer Lightning"
+
     def get_ticker(self, symbol: str) -> dict:
         """
         Fetches the ticker information for a given symbol.
@@ -17,7 +20,7 @@ class BitflyerClientService:
         response = requests.get(self.base_url + path, params=params)
         return response.json()
 
-    def get_balance(self) -> dict:
+    def get_balance(self) -> list:
         """
         Fetches the balance of the account.
         :return: A dictionary containing the account balance.
@@ -74,6 +77,18 @@ class BitflyerClientService:
         headers = self._get_auth_headers('post', path, data)
         response = requests.post(self.base_url + path, data=data, headers=headers)
         return response.json()
+    
+    def get_positions(self, symbol: str) -> dict:
+        """
+        Fetches the positions for a given symbol.
+        :param symbol: The product code for which to fetch positions.
+        :return: A dictionary containing position information.
+        """
+        path = "/v1/me/getpositions"
+        params = {"product_code": symbol}
+        headers = self._get_auth_headers('get', path)
+        response = requests.get(self.base_url + path, params=params, headers=headers)
+        return response.json()
 
     def _get_auth_headers(self, method: Literal["post", "get"], path: str, data: str = '') -> dict:
         """
@@ -95,7 +110,7 @@ class BitflyerClientService:
 
     def __init__(self, base_url: str, api_key: str, api_secret: str):
         """
-        Initializes the BitflyerClient with API credentials and base URL.
+        Initializes the BitflyerApiClient with API credentials and base URL.
         """
         self.base_url = base_url
         self.__api_key = api_key

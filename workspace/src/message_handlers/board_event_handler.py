@@ -10,11 +10,11 @@ class BoardEventHandler(MessageHandler):
     channel_names = []
 
     @inject
-    def handle_message(self,
-                       data: list|dict,
-                       channel: str,
-                       data_buffer: data_buffer_service.DataBufferService = Provide['data_buffer'],
-                       portfolio: portfolio_service.PortfolioService = Provide['portfolio']) -> None:
+    async def handle_message(self,
+                             data: list|dict,
+                             channel: str,
+                             data_buffer: data_buffer_service.DataBufferService = Provide['data_buffer'],
+                             portfolio: portfolio_service.PortfolioService = Provide['portfolio']) -> None:
         """
         Handles the incoming message by checking the channel and appending data to the buffer if it matches.
         :param data: The data received from the WebSocket message.

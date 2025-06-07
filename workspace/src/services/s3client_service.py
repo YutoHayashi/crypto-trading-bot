@@ -1,5 +1,5 @@
 import boto3
-from exceptions.s3client_exception import S3ClientException
+from exceptions import S3ClientException
 
 class S3ClientService:
     """
@@ -17,7 +17,7 @@ class S3ClientService:
         self.bucket = bucket
         self.__client = boto3.client('s3')
 
-    def get_object(self, key: str) -> boto3.response:
+    def get_object(self, key: str):
         try:
             response = self.__client.get_object(
                 Bucket=self.bucket,

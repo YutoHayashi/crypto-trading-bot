@@ -1,5 +1,6 @@
 from typing import List
 import dataclasses
+import asyncio
 import exceptions
 from message_handlers.message_handler import MessageHandler
 
@@ -15,9 +16,12 @@ class HandlerDispatcherService:
         """
         Dispatch the message to the appropriate handler based on the channel.
         """
+        tasks = []
         for handler in self.handlers:
             if hasattr(handler, 'handle_message'):
                 if channel in handler.channel_names:
-                    await handler.handle_message(data, channel)
+                    tasks.append(asyncio.create_task(handler.handle_message(data, channel)))
             else:
                 raise exceptions.LogicException(f"Handler {handler.__class__.__name__} does not implement handle_message method.")
+        if tasks:
+            await asyncio.gather(*tasks)

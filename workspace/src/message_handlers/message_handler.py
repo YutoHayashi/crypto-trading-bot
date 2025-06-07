@@ -11,7 +11,7 @@ class MessageHandler(ABC):
     """
     legal_currency_code: str = None
     crypto_currency_code: str = None
-    logger: logger_service.Logger = None
+    logger: logger_service.LoggerService = None
 
     @property
     @abstractmethod
@@ -31,7 +31,7 @@ class MessageHandler(ABC):
     @inject
     def __init__(self,
                  config: dict = Provide['config'],
-                 logger: logger_service.Logger = Provide['logger']):
+                 logger: logger_service.LoggerService = Provide['logger']):
         """
         Initialize the message handler.
         """

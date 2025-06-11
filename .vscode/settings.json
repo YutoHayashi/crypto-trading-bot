@@ -1,4 +1,4 @@
 {
-    "python.analysis.extraPaths": ["./workspace/src"],
-    "python.autoComplete.extraPaths": ["./workspace/src"]
+    "python.analysis.extraPaths": ["./app/src"],
+    "python.autoComplete.extraPaths": ["./app/src"]
 }

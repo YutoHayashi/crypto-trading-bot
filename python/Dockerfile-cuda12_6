@@ -6,5 +6,5 @@ RUN apt-get update && \
 RUN python3 -m venv myenv && \
     pip install --upgrade pip && \
     pip install -r requirements.txt
-WORKDIR /workspace
+WORKDIR /app
 ENTRYPOINT ["python3", "main.py"]

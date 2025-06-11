@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile-cuda12_6
     tty: true
     volumes:
-      - ./workspace:/workspace
+      - ./app:/app
     deploy:
       resources:
         reservations:

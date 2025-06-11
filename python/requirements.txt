@@ -5,7 +5,7 @@ pandas
 torch
 torchrl
 torchvision
-websocket-client
+websockets
 rel
 scikit-learn
 boto3

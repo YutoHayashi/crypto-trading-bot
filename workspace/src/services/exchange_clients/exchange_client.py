@@ -23,6 +23,14 @@ class ExchangeClient(ABC):
         pass
 
     @abstractmethod
+    def get_health(self, symbol: str) -> dict:
+        """
+        Fetches the health status of the exchange.
+        This method can be extended to include more detailed health checks.
+        """
+        pass
+
+    @abstractmethod
     def get_balance(self) -> list:
         """
         Fetches the balance of the account.

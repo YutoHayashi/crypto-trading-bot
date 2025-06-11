@@ -1,20 +1,39 @@
 from abc import ABC, abstractmethod
+from dependency_injector.wiring import inject, Provide
+from services.logger_service import LoggerService
 
 class Stream(ABC):
     """
     Abstract base class for WebSocket streams.
     """
+    logger: LoggerService = None
 
     @abstractmethod
-    def run(self) -> None:
+    async def run(self):
         """
         Run the WebSocket stream.
         """
         pass
 
-    @abstractmethod
-    def stop(self) -> None:
+    def pause(self):
         """
-        Stop the WebSocket stream.
+        Stop the stream.
         """
-        pass
+        self.paused = True
+        self.logger.system.info("The stream is paused.")
+
+    def resume(self):
+        """
+        Resume the stream.
+        """
+        self.paused = False
+        self.logger.system.info("The stream is resumed.")
+
+    @inject
+    def __init__(self,
+                 logger: LoggerService = Provide['logger']):
+        """
+        Initialize the WebSocket stream.
+        """
+        self.logger = logger
+        self.paused = False

@@ -20,7 +20,7 @@ class HandlerDispatcherService:
         for handler in self.handlers:
             if hasattr(handler, 'handle_message'):
                 if channel in handler.channel_names:
-                    tasks.append(asyncio.create_task(handler.handle_message(data, channel)))
+                    tasks.append(handler.handle_message(data, channel))
             else:
                 raise exceptions.LogicException(f"Handler {handler.__class__.__name__} does not implement handle_message method.")
         if tasks:

@@ -5,31 +5,29 @@ import json
 import hmac
 import hashlib
 import asyncio
-import websocket
-import rel
+import websockets
+from websockets.asyncio.client import connect
 from dependency_injector.wiring import inject, Provide
-import exceptions
-from services import logger_service, handler_dispatcher_service
+from services import handler_dispatcher_service
 from services.streams.stream import Stream
 
 class BitflyerLightningWsclientService(Stream):
-    ws: websocket.WebSocketApp = None
-
-    def on_open(self, ws):
+    async def send_public_subscriptions(self, websocket):
         for channel in self.public_channels:
-            ws.send(json.dumps({
+            await websocket.send(json.dumps({
                 "method": "subscribe",
                 "params": {
                     "channel": channel,
                 },
             }))
-        
-        # Authenticate the WebSocket connection
+
+    async def send_private_subscriptions(self, websocket):
         timestamp = int(time.time())
         nonce = os.urandom(16).hex()
         mix = f"{timestamp}{nonce}"
         signature = hmac.new(self.__api_secret.encode('utf-8'), mix.encode('utf-8'), hashlib.sha256).hexdigest()
-        ws.send(json.dumps({
+
+        await websocket.send(json.dumps({
             "method": "auth",
             "params": {
                 "api_key": self.__api_key,
@@ -39,44 +37,40 @@ class BitflyerLightningWsclientService(Stream):
             },
         }))
 
-        # Subscribe to private channels from here
         for channel in self.private_channels:
-            ws.send(json.dumps({
+            await websocket.send(json.dumps({
                 "method": "subscribe",
                 "params": {
                     "channel": channel,
                 },
             }))
 
-        self.logger.system.info("WebSocket connection opened. Subscribing to channels.")
+    async def receive_message(self, websocket):
+        while True:
+            if not self.paused:
+                message = await websocket.recv()
+                message = json.loads(message)
 
-    def on_reconnect(self, ws):
-        self.logger.system.info("WebSocket connection reestablished. Resubscribing to channels.")
+                if 'params' in message and 'message' in message['params'] and 'channel' in message['params']:
+                    data = message['params']['message']
+                    channel = message['params']['channel']
+                    await self.handler_dispatcher.dispatch(data, channel)
+            else:
+                await asyncio.sleep(1)
 
-    def on_message(self, ws, msg):
-        message = json.loads(msg)
-        if 'params' in message and 'message' in message['params'] and 'channel' in message['params']:
-            data = message['params']['message']
-            channel = message['params']['channel']
-            asyncio.run(self.handler_dispatcher.dispatch(data, channel))
-
-    def on_close(self, ws, status_code, msg):
-        self.logger.system.info(f"WebSocket connection closed with status code {status_code}: {msg}")
-
-    def on_error(self, ws, err):
-        raise exceptions.WebsocketException(f"WebSocket connection error: {str(err)}")
-
-    def run(self) -> None:
-        if self.ws is None:
-            raise exceptions.LogicException("WebSocketApp is not initialized. Call Stream.start() first.")
-        self.ws.run_forever(dispatcher=rel, reconnect=5)
-        rel.signal(2, rel.abort)
-        rel.dispatch()
-
-    def stop(self) -> None:
-        if self.ws is None:
-            raise exceptions.LogicException("WebSocketApp is not running. Call Stream.start() first.")
-        rel.abort()
+    async def run(self) -> None:
+        """
+        Start the WebSocket client.
+        This method initializes the WebSocket connection and starts listening for messages.
+        """
+        self.logger.system.info("Starting WebSocket client...")
+        async for websocket in connect(self.url):
+            try:
+                await asyncio.gather(self.send_public_subscriptions(websocket),
+                                    self.send_private_subscriptions(websocket),
+                                    self.receive_message(websocket))
+            except websockets.exceptions.ConnectionClosed:
+                self.logger.system.info("WebSocket connection closed.")
 
     @inject
     def __init__(self,
@@ -85,25 +79,21 @@ class BitflyerLightningWsclientService(Stream):
                  api_secret: str,
                  public_channels: List[str],
                  private_channels: List[str],
-                 handler_dispatcher: handler_dispatcher_service.HandlerDispatcherService = Provide['handler_dispatcher'],
-                 logger: logger_service.LoggerService = Provide['logger']):
+                 handler_dispatcher: handler_dispatcher_service.HandlerDispatcherService = Provide['handler_dispatcher']):
         """
         Initialize the WebSocket client.
-        :param message_handler: The message handler to process incoming messages.
-        :param logger: An instance of Logger to log messages.
+        :param url: The WebSocket URL to connect to.
+        :param api_key: The API key for authentication.
+        :param api_secret: The API secret for authentication.
+        :param public_channels: A list of public channels to subscribe to.
+        :param private_channels: A list of private channels to subscribe to.
+        :param handler_dispatcher: The handler dispatcher service to handle incoming messages.
         """
+        super().__init__()
+
+        self.url = url
         self.__api_key = api_key
         self.__api_secret = api_secret
         self.public_channels = public_channels
         self.private_channels = private_channels
         self.handler_dispatcher = handler_dispatcher
-        self.logger = logger
-
-        self.ws = websocket.WebSocketApp(
-            url,
-            on_open=self.on_open,
-            on_message=self.on_message,
-            on_error=self.on_error,
-            on_close=self.on_close,
-            on_reconnect=self.on_reconnect
-        )

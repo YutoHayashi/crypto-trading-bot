@@ -20,6 +20,17 @@ class BitflyerLightningClientService(ExchangeClient):
         response = requests.get(self.base_url + path, params=params)
         return response.json()
 
+    def get_health(self, symbol: str) -> dict:
+        """
+        Fetches the health status of the exchange for a given symbol.
+        :param symbol: The product code for which to fetch the health status.
+        :return: A dictionary containing health information.
+        """
+        path = "/v1/getboardstate"
+        params = {"product_code": symbol}
+        response = requests.get(self.base_url + path, params=params)
+        return response.json()
+
     def get_balance(self) -> list:
         """
         Fetches the balance of the account.

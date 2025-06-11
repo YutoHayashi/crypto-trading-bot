@@ -6,31 +6,32 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 import asyncio
 from dotenv import load_dotenv
 from container import ApplicationContainer
-import exceptions
 
 load_dotenv()
 
 legal_currency_code = 'JPY'
 crypto_currency_code = 'FX_BTC_JPY'
 
-def main(container: ApplicationContainer) -> None:
+async def main(container: ApplicationContainer) -> None:
     """
-    Main function to run the application.
-    This function initializes the portfolio and starts the WebSocket client.
-    :param container: The application container containing all services and configurations.
+    Main entry point for the application.
+    This function initializes the application container, synchronizes the portfolio,
+    and starts the stream and batch services.
+    :param container: The application container that holds all services and configurations.
     """
-    try:
-        asyncio.run(container.portfolio().sync())
-        container.stream().run()
-    except exceptions.LogicException as e:
-        container.stream().stop()
-    except exceptions.RuntimeException as e:
-        container.stream().stop()
+    await container.portfolio().sync()
+    await asyncio.gather(
+        container.stream().run(),
+        container.batch().run(),
+        container.health_check().run()
+    )
 
 if __name__ == '__main__':
     container = ApplicationContainer()
 
     container.config.from_dict({
+        'batch_interval': 10,
+        'health_check_interval': 10,
         'legal_currency_code': legal_currency_code,
         'crypto_currency_code': crypto_currency_code,
         'data_buffer_size': 100,
@@ -46,4 +47,4 @@ if __name__ == '__main__':
 
     container.wire()
 
-    main(container)
+    asyncio.run(main(container))

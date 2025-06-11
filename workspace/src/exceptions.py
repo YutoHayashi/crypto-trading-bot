@@ -31,10 +31,6 @@ class TransactionException(RuntimeException):
     """Base exception for transaction errors."""
     _title = "Transaction Exception"
 
-class WebsocketException(RuntimeException):
-    """Base exception for Websocket client errors."""
-    _title = "Websocket Client Exception"
-
 class S3ClientException(RuntimeException):
     """Base exception for S3 client errors."""
     _title = "S3 Client Exception"

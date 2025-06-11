@@ -44,6 +44,9 @@ if __name__ == '__main__':
     container.config.bitflyer_api_key.from_env('BITFLYER_API_KEY')
     container.config.bitflyer_api_secret.from_env('BITFLYER_API_SECRET')
     container.config.s3_bucket.from_env('S3_BUCKET')
+    container.config.line_messaging_api_base_url.from_env('LINE_MESSAGING_API_BASE_URL')
+    container.config.line_messaging_api_channel_token.from_env('LINE_MESSAGING_API_CHANNEL_TOKEN')
+    container.config.line_messaging_api_destination_user_id.from_env('LINE_MESSAGING_API_DESTINATION_USER_ID')
 
     container.wire()
 

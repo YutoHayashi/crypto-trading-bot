@@ -34,8 +34,11 @@ class ApplicationContainer(containers.DeclarativeContainer):
         health_check_service.HealthCheckService,
         interval=config.health_check_interval,
     )
-    notifier = providers.Singleton(
-        notification_service.NotificationService
+    notification = providers.Singleton(
+        notification_service.NotificationService,
+        line_messaging_api_base_url=config.line_messaging_api_base_url,
+        line_messaging_api_channel_token=config.line_messaging_api_channel_token,
+        line_messaging_api_destination_user_id=config.line_messaging_api_destination_user_id
     )
     exchange = providers.Singleton(bitflyer_service.BitflyerService)
     portfolio = providers.Singleton(portfolio_service.PortfolioService)

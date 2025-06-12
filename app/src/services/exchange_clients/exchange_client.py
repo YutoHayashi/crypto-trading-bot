@@ -59,6 +59,15 @@ class ExchangeClient(ABC):
         pass
 
     @abstractmethod
+    def get_orders(self, symbol: str) -> list:
+        """
+        Fetches all orders or orders for a specific symbol.
+        :param symbol: The product code for which to fetch the orders.
+        :return: A list of orders.
+        """
+        pass
+
+    @abstractmethod
     def get_positions(self, symbol: str) -> dict:
         """
         Fetches the positions for a given symbol.

@@ -4,6 +4,7 @@ import json
 import requests
 import hashlib
 import hmac
+from urllib.parse import urlencode
 from services.exchange_clients.exchange_client import ExchangeClient
 
 class BitflyerLightningClient(ExchangeClient):
@@ -69,7 +70,7 @@ class BitflyerLightningClient(ExchangeClient):
             "price": price,
             "size": size,
         })
-        headers = self._get_auth_headers('post', path, data)
+        headers = self._get_auth_headers('post', path, data=data)
         response = requests.post(self.base_url + path, data=data, headers=headers)
         return response.json()
 
@@ -85,10 +86,22 @@ class BitflyerLightningClient(ExchangeClient):
             "product_code": symbol,
             "child_order_id": order_id,
         })
-        headers = self._get_auth_headers('post', path, data)
+        headers = self._get_auth_headers('post', path, data=data)
         response = requests.post(self.base_url + path, data=data, headers=headers)
         return response.json()
-    
+
+    def get_orders(self, symbol: str) -> list:
+        """
+        Fetches all orders or orders for a specific symbol.
+        :param symbol: The product code for which to fetch the orders.
+        :return: A list of orders.
+        """
+        path = "/v1/me/getchildorders"
+        params = {"product_code": symbol, "child_order_state": "ACTIVE"}
+        headers = self._get_auth_headers('get', path, params=params)
+        response = requests.get(self.base_url + path, params=params, headers=headers)
+        return response.json()
+
     def get_positions(self, symbol: str) -> dict:
         """
         Fetches the positions for a given symbol.
@@ -97,11 +110,11 @@ class BitflyerLightningClient(ExchangeClient):
         """
         path = "/v1/me/getpositions"
         params = {"product_code": symbol}
-        headers = self._get_auth_headers('get', path)
+        headers = self._get_auth_headers('get', path, params=params)
         response = requests.get(self.base_url + path, params=params, headers=headers)
         return response.json()
 
-    def _get_auth_headers(self, method: Literal["post", "get"], path: str, data: str = '') -> dict:
+    def _get_auth_headers(self, method: Literal["post", "get"], path: str, params: dict = {}, data: str = '') -> dict:
         """
         Generates authentication headers for API requests.
         :param method: The HTTP method (e.g., 'post', 'get').
@@ -109,6 +122,8 @@ class BitflyerLightningClient(ExchangeClient):
         :param data: The request body data, if applicable.
         :return: A dictionary containing the authentication headers.
         """
+        if params:
+            path += f'?{urlencode(params)}'
         timestamp = str(datetime.datetime.today())
         mix = f"{timestamp}{method.upper()}{path}{data}"
         signature = hmac.new(self.__api_secret.encode('utf-8'), mix.encode('utf-8'), hashlib.sha256).hexdigest()

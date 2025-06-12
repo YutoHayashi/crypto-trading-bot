@@ -20,6 +20,8 @@ async def main(container: ApplicationContainer) -> None:
     :param container: The application container that holds all services and configurations.
     """
     await container.portfolio().sync()
+    await container.order_book().sync()
+    await container.position_book().sync()
     await asyncio.gather(
         container.stream().run(),
         container.batch().run(),

@@ -1,7 +1,7 @@
 from typing import List
 from abc import ABC, abstractmethod
 from dependency_injector.wiring import inject, Provide
-from services import logger_service
+from services import logger
 
 class MessageHandler(ABC):
     """
@@ -11,7 +11,6 @@ class MessageHandler(ABC):
     """
     legal_currency_code: str = None
     crypto_currency_code: str = None
-    logger: logger_service.LoggerService = None
 
     @property
     @abstractmethod
@@ -31,7 +30,7 @@ class MessageHandler(ABC):
     @inject
     def __init__(self,
                  config: dict = Provide['config'],
-                 logger: logger_service.LoggerService = Provide['logger']):
+                 logger: logger.Logger = Provide['logger']):
         """
         Initialize the message handler.
         """

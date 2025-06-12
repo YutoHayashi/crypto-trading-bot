@@ -1,5 +1,5 @@
 from dependency_injector.wiring import inject, Provide
-from services import logger_service
+from services import logger
 
 class BaseException(Exception):
     """Base exception for all custom exceptions."""
@@ -8,7 +8,7 @@ class BaseException(Exception):
     @inject
     def __init__(self,
                  message: str = 'An error occurred',
-                 logger: logger_service.LoggerService = Provide['logger']):
+                 logger: logger.Logger = Provide['logger']):
         super().__init__(message)
         self.message = f"{self._title} - {message}"
         logger.system.error(self.message)

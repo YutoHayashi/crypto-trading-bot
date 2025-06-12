@@ -1,5 +1,5 @@
 from dependency_injector.wiring import inject, Provide
-from services import data_buffer_service, portfolio_service
+from services import data_buffer, portfolio
 from message_handlers.message_handler import MessageHandler
 
 class BoardEventHandler(MessageHandler):
@@ -13,8 +13,8 @@ class BoardEventHandler(MessageHandler):
     async def handle_message(self,
                              data: list|dict,
                              channel: str,
-                             data_buffer: data_buffer_service.DataBufferService = Provide['data_buffer'],
-                             portfolio: portfolio_service.PortfolioService = Provide['portfolio']) -> None:
+                             data_buffer: data_buffer.DataBuffer = Provide['data_buffer'],
+                             portfolio: portfolio.Portfolio = Provide['portfolio']) -> None:
         """
         Handles the incoming message by checking the channel and appending data to the buffer if it matches.
         :param data: The data received from the WebSocket message.

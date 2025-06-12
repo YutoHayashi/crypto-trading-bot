@@ -1,7 +1,7 @@
 import boto3
 from exceptions import S3ClientException
 
-class S3ClientService:
+class S3Client:
     """
     A simple S3 client to interact with AWS S3 buckets.
     This client provides methods to get objects from a specified S3 bucket.

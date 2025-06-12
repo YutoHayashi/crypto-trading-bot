@@ -5,9 +5,9 @@ import exceptions
 from message_handlers.message_handler import MessageHandler
 
 @dataclasses.dataclass
-class HandlerDispatcherService:
+class HandlerDispatcher:
     """
-    HandlerDispatcherService is responsible for dispatching messages to the appropriate handlers.
+    HandlerDispatcher is responsible for dispatching messages to the appropriate handlers.
     It checks the channel of the incoming message and calls the corresponding handler's method.
     """
     handlers: List[MessageHandler]

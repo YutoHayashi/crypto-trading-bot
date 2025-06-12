@@ -2,7 +2,7 @@ from enum import Enum
 import io
 from dependency_injector.wiring import inject, Provide
 import torch
-from services import s3client_service
+from services import s3client
 
 class Actions(Enum):
     """
@@ -27,7 +27,7 @@ class Agent:
                  model_key: str,
                  observation_size: int,
                  action_size: int,
-                 s3client: s3client_service.S3ClientService = Provide['s3client']):
+                 s3client: s3client.S3Client = Provide['s3client']):
         """
         Initializes the Agent with a Q-network and loads a pre-trained model from S3.
         :param qnet: The Q-network class to be used.

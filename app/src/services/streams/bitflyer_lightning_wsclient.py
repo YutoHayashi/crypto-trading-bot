@@ -8,10 +8,10 @@ import asyncio
 import websockets
 from websockets.asyncio.client import connect
 from dependency_injector.wiring import inject, Provide
-from services import handler_dispatcher_service
+from services import handler_dispatcher
 from services.streams.stream import Stream
 
-class BitflyerLightningWsclientService(Stream):
+class BitflyerLightningWsclient(Stream):
     async def send_public_subscriptions(self, websocket):
         for channel in self.public_channels:
             await websocket.send(json.dumps({
@@ -79,7 +79,7 @@ class BitflyerLightningWsclientService(Stream):
                  api_secret: str,
                  public_channels: List[str],
                  private_channels: List[str],
-                 handler_dispatcher: handler_dispatcher_service.HandlerDispatcherService = Provide['handler_dispatcher']):
+                 handler_dispatcher: handler_dispatcher.HandlerDispatcher = Provide['handler_dispatcher']):
         """
         Initialize the WebSocket client.
         :param url: The WebSocket URL to connect to.

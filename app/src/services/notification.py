@@ -1,7 +1,7 @@
 import json
 import requests
 
-class NotificationService:
+class Notification:
     def notify(self, message: str):
         """
         Notify the user with a message.

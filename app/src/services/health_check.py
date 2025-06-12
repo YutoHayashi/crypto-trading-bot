@@ -1,10 +1,10 @@
 import asyncio
 from dependency_injector.wiring import inject, Provide
-from services.logger_service import LoggerService
+from services.logger import Logger
 from services.streams.stream import Stream
 from services.exchanges.exchange import Exchange, Health, State
 
-class HealthCheckService:
+class HealthCheck:
     """
     A service that performs health checks at regular intervals.
     This service runs in a separate thread and can be paused or resumed.
@@ -59,7 +59,7 @@ class HealthCheckService:
     @inject
     def __init__(self,
                  interval: int,
-                 logger: LoggerService = Provide['logger']):
+                 logger: Logger = Provide['logger']):
         """
         Initialize the HealthCheckService with an interval for health checks.
         :param interval: The interval in seconds at which to perform health checks.

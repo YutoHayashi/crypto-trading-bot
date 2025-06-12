@@ -2,7 +2,7 @@ import asyncio
 from dependency_injector.wiring import inject, Provide
 from services.exchange_clients.exchange_client import ExchangeClient
 
-class PortfolioService:
+class Portfolio:
     """
     Service for managing portfolio-related operations.
     This service can be extended to include methods for adding, removing, or updating portfolio items.

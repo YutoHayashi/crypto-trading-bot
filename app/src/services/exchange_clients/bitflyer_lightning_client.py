@@ -6,7 +6,7 @@ import hashlib
 import hmac
 from services.exchange_clients.exchange_client import ExchangeClient
 
-class BitflyerLightningClientService(ExchangeClient):
+class BitflyerLightningClient(ExchangeClient):
     exchange_name = "bitflyer Lightning"
 
     def get_ticker(self, symbol: str) -> dict:

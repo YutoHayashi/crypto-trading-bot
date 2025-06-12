@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 from dependency_injector.wiring import inject, Provide
-from services.logger_service import LoggerService
+from services.logger import Logger
 
 class Stream(ABC):
     """
     Abstract base class for WebSocket streams.
     """
-    logger: LoggerService = None
+    logger: Logger = None
 
     @abstractmethod
     async def run(self):
@@ -31,7 +31,7 @@ class Stream(ABC):
 
     @inject
     def __init__(self,
-                 logger: LoggerService = Provide['logger']):
+                 logger: Logger = Provide['logger']):
         """
         Initialize the WebSocket stream.
         """

@@ -1,10 +1,10 @@
 from typing import List, Callable, Awaitable
 import asyncio
 from dependency_injector.wiring import inject, Provide
-from services.logger_service import LoggerService
+from services.logger import Logger
 from services.exchanges.exchange import Exchange
 
-class BatchService:
+class Batch:
     tasks: List[Callable[[], Awaitable[None]]]
     interval: int
 
@@ -41,9 +41,9 @@ class BatchService:
     @inject
     def __init__(self,
                  interval: int,
-                 logger: LoggerService = Provide['logger']):
+                 logger: Logger = Provide['logger']):
         """
-        Initialize the BatchService with a list of tasks.
+        Initialize the Batch service with a list of tasks.
         :param interval: The interval in seconds at which to run the tasks.
         :param tasks: A list of asynchronous tasks to run at the specified interval.
         :param logger: The logger service to log messages.

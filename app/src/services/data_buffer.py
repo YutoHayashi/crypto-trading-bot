@@ -1,6 +1,6 @@
 from collections import deque
 
-class DataBufferService:
+class DataBuffer:
     """
     A service that provides a buffer to store data with a maximum size.
     When the buffer reaches its maximum size, the oldest data is discarded.

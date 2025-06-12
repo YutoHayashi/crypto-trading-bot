@@ -3,7 +3,7 @@ from dependency_injector.wiring import inject, Provide
 from services.exchanges.exchange import Exchange, Health, State
 from services.exchange_clients.exchange_client import ExchangeClient
 
-class BitflyerService(Exchange):
+class Bitflyer(Exchange):
     name = 'bitflyer Lightning'
 
     __health: Health = None

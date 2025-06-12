@@ -1,7 +1,7 @@
 import os
 from logging import Logger, getLogger, DEBUG, INFO, FileHandler, Formatter
 
-class LoggerService:
+class Logger:
     formatter: Formatter = None
     system: Logger = None
     transaction: Logger = None

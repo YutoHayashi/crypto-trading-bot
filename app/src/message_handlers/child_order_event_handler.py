@@ -1,6 +1,6 @@
 from dependency_injector.wiring import inject, Provide
 import exceptions
-from services import portfolio_service
+from services import portfolio
 from message_handlers.message_handler import MessageHandler
 
 class ChildOrderEventHandler(MessageHandler):
@@ -14,7 +14,7 @@ class ChildOrderEventHandler(MessageHandler):
     async def handle_message(self,
                              data: list|dict,
                              channel: str,
-                             portfolio: portfolio_service.PortfolioService = Provide['portfolio']) -> None:
+                             portfolio: portfolio.Portfolio = Provide['portfolio']) -> None:
         """
         Handles the incoming message by checking the channel and processing child order data.
         :param data: The data received from the WebSocket message.

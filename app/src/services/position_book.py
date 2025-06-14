@@ -39,6 +39,31 @@ class PositionBook:
 
             self._positions = [Position(**position) for position in positions]
 
+    async def add_and_settle(self, position: Position) -> float:
+        """
+        Add a new position to the position book.
+        If an opposite position exists, offset (close) it as needed.
+        :param position: The position to be added.
+        :return: The realized PnL from offsetting, if any.
+        """
+        async with self.lock:
+            pnl = 0.0
+            for existing in self._positions:
+                if existing.side != position.side and existing.size >= position.size:
+                    # Offset the existing position with the new position
+                    # Calculate PnL based on the offset size
+                    offset_size = min(existing.size, position.size)
+                    pnl += (position.price - existing.price) * offset_size if position.side == 'SELL' else (existing.price - position.price) * offset_size
+                    existing.size -= offset_size
+                    position.size -= offset_size
+                    if existing.size == 0.0:
+                        self._positions.remove(existing)
+                    if position.size == 0.0:
+                        break
+            if position.size > 0:
+                self._positions.append(position)
+            return pnl
+
     async def get_positions(self) -> List[Position]:
         async with self.lock:
             return self._positions.copy()

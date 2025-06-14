@@ -90,14 +90,14 @@ class BitflyerLightningClient(ExchangeClient):
         response = requests.post(self.base_url + path, data=data, headers=headers)
         return response.json()
 
-    def get_orders(self, symbol: str) -> list:
+    def get_orders(self, symbol: str, order_state: str = None) -> list:
         """
         Fetches all orders or orders for a specific symbol.
         :param symbol: The product code for which to fetch the orders.
         :return: A list of orders.
         """
         path = "/v1/me/getchildorders"
-        params = {"product_code": symbol, "child_order_state": "ACTIVE"}
+        params = {"product_code": symbol, "child_order_state": order_state}
         headers = self._get_auth_headers('get', path, params=params)
         response = requests.get(self.base_url + path, params=params, headers=headers)
         return response.json()

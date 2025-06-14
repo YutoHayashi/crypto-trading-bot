@@ -59,7 +59,7 @@ class ExchangeClient(ABC):
         pass
 
     @abstractmethod
-    def get_orders(self, symbol: str) -> list:
+    def get_orders(self, symbol: str, order_state: str) -> list:
         """
         Fetches all orders or orders for a specific symbol.
         :param symbol: The product code for which to fetch the orders.

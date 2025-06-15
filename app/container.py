@@ -7,12 +7,14 @@ from services.streams import bitflyer_lightning_wsclient
 from services.exchanges import bitflyer
 import message_handlers
 from message_handlers import board_event_handler, child_order_event_handler
+import agents
+from agents import sample
 
 class ApplicationContainer(containers.DeclarativeContainer):
     """Dependency Injection Container for the application."""
     config = providers.Configuration()
     wiring_config = containers.WiringConfiguration(
-        packages=[exceptions, services, message_handlers],
+        packages=[exceptions, services, message_handlers, agents],
         modules=['__main__']
     )
 
@@ -66,4 +68,9 @@ class ApplicationContainer(containers.DeclarativeContainer):
             providers.Factory(board_event_handler.BoardEventHandler),
             providers.Factory(child_order_event_handler.ChildOrderEventHandler)
         )
+    )
+
+    # Agent to select action
+    agent = providers.Singleton(
+        sample.Random,
     )
